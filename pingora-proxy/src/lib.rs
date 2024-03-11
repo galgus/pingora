@@ -230,7 +230,7 @@ impl<SV> HttpProxy<SV> {
             HttpTask::Header(header, _eos) => {
                 self.inner.upstream_response_filter(session, header, ctx)
             }
-            HttpTask::Body(data, eos) => self
+            HttpTask::Body(ref mut data, eos) => self
                 .inner
                 .upstream_response_body_filter(session, data, *eos, ctx),
             _ => {
