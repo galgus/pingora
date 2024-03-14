@@ -168,6 +168,7 @@ impl<SV> HttpProxy<SV> {
                 let (server_reused, error) = match client_session {
                     ClientSession::H1(mut h1) => {
                         let (server_reused, client_reuse, error) = self
+                            // JADA: AQUI OCURRE LA MAGIA
                             .proxy_to_h1_upstream(session, &mut h1, client_reused, &peer, ctx)
                             .await;
                         if client_reuse {

@@ -199,6 +199,17 @@ pub trait ProxyHttp {
         Ok(())
     }
 
+    async fn upstream_request_body_filter(
+        &self,
+        _session: &mut Session,
+        _body: &Option<Bytes>,
+        _ctx: &mut Self::CTX,
+    ) -> Result<()>
+    where
+        Self::CTX: Send + Sync,
+    {
+        Ok(())
+    }
     /// Modify the response header from the upstream
     ///
     /// The modification is before caching, so any change here will be stored in the cache if enabled.
