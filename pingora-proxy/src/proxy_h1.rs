@@ -80,6 +80,8 @@ impl<SV> HttpProxy<SV> {
 
         debug!("Sending header to upstream {:?}", req);
 
+        // TODO JADA: Tengo que conocer cuanto va a crecer/decrecer el body
+        // para modificar el Content-Length
         match client_session.write_request_header(Box::new(req)).await {
             Ok(_) => { /* Continue */ }
             Err(e) => {
@@ -94,7 +96,6 @@ impl<SV> HttpProxy<SV> {
 
         // start bi-directional streaming
         let ret = if !session.is_body_empty() {
-            trace!("Estamos explorando un universo de posibilidades!!!");
             tokio::try_join!(
                 self.proxy_handle_downstream_mid(session, tx_downstream, rx_upstream, ctx),
                 self.proxy_handle_upstream(client_session, tx_upstream, rx_downstream),
@@ -312,10 +313,10 @@ impl<SV> HttpProxy<SV> {
             }
         }
 
-        let buf = Some(buf.freeze());
+        let mut buf = Some(buf.freeze());
         match self
             .inner
-            .upstream_request_body_filter(session, &buf, ctx)
+            .upstream_request_body_filter(session, &mut buf, ctx)
             .await
         {
             Ok(_) => { /* continue */ }
@@ -330,7 +331,7 @@ impl<SV> HttpProxy<SV> {
 
             match send_permit {
                 Ok(send_permit) => {
-                    send_body_to_pipe(buf.clone(), true, send_permit).await;
+                    send_body_to_pipe(buf.take(), true, send_permit).await;
                     break;
                 }
                 Err(ref _e) => {
