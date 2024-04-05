@@ -229,7 +229,7 @@ pub trait ProxyHttp {
     async fn upstream_request_body_filter(
         &self,
         _session: &mut Session,
-        _body: &Option<Bytes>,
+        _body: &mut Option<Bytes>,
         _ctx: &mut Self::CTX,
     ) -> Result<()>
     where
