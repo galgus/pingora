@@ -236,22 +236,24 @@ impl<SV> HttpProxy<SV> {
         }
     }
 
-    fn upstream_filter(
+    async fn upstream_filter(
         &self,
         session: &mut Session,
         task: &mut HttpTask,
         ctx: &mut SV::CTX,
     ) -> Result<()>
     where
-        SV: ProxyHttp,
+        SV: ProxyHttp + Send + Sync,
     {
         match task {
             HttpTask::Header(header, _eos) => {
                 self.inner.upstream_response_filter(session, header, ctx)
             }
-            HttpTask::Body(data, eos) => self
-                .inner
-                .upstream_response_body_filter(session, data, *eos, ctx),
+            HttpTask::Body(data, eos) => {
+                self.inner
+                    .upstream_response_body_filter(session, data, *eos, ctx)
+                    .await
+            }
             HttpTask::Trailer(Some(trailers)) => self
                 .inner
                 .upstream_response_trailer_filter(session, trailers, ctx)?,

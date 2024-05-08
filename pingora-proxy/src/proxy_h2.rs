@@ -396,7 +396,7 @@ impl<SV> HttpProxy<SV> {
         SV::CTX: Send + Sync,
     {
         if !from_cache {
-            self.upstream_filter(session, &mut task, ctx)?;
+            self.upstream_filter(session, &mut task, ctx).await?;
 
             // cache the original response before any downstream transformation
             // requests that bypassed cache still need to run filters to see if the response has become cacheable
