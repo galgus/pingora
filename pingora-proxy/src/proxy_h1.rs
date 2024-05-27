@@ -328,7 +328,12 @@ impl<SV> HttpProxy<SV> {
 
             match send_permit {
                 Ok(send_permit) => {
-                    send_body_to_pipe(buf.take(), true, send_permit).await;
+                    if let Err(e) = self
+                        .send_body_to_pipe(session, buf.take(), true, send_permit, ctx)
+                        .await
+                    {
+                        warn!("send_body_to_pipe: {e:?}");
+                    }
                     break;
                 }
                 Err(ref _e) => {
