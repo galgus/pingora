@@ -96,6 +96,7 @@ pub(crate) fn titled_header_name_str(header_name: &HeaderName) -> Option<&'stati
         header::HOST => "Host",
         header::SERVER => "Server",
         header::SET_COOKIE => "Set-Cookie",
+        header::UPGRADE => "Upgrade",
         // TODO: add more const header here to map to their titled case
         // TODO: automatically upper case the first letter?
         _ => {
