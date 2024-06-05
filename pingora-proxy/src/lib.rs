@@ -70,6 +70,7 @@ const TASK_BUFFER_SIZE: usize = 4;
 
 mod proxy_cache;
 mod proxy_common;
+mod proxy_h1_galgus;
 mod proxy_h1;
 mod proxy_h2;
 mod proxy_purge;
