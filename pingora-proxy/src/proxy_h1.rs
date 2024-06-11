@@ -230,13 +230,15 @@ impl<SV> HttpProxy<SV> {
                 .reserve()
                 .await
                 .or_err(InternalError, "reserving body pipe")?;
-            match self
-                .inner
-                .upstream_request_body_filter(session, &mut buffer, ctx)
-                .await
-            {
-                Ok(_) => { /* continue */ }
-                Err(e) => return Err(e),
+            if buffer.is_some() {
+                match self
+                    .inner
+                    .upstream_request_body_filter(session, &mut buffer, ctx)
+                    .await
+                {
+                    Ok(_) => { /* continue */ }
+                    Err(e) => return Err(e),
+                }
             }
             self.send_body_to_pipe(
                 session,
@@ -312,13 +314,15 @@ impl<SV> HttpProxy<SV> {
                     // TODO: consider just drain this if serve_from_cache is set
                     let is_body_done = session.is_body_done();
 
-                    match self
-                        .inner
-                        .upstream_request_body_filter(session, &mut body, ctx)
+                    if body.is_some(){
+                        match self
+                            .inner
+                            .upstream_request_body_filter(session, &mut body, ctx)
                         .await
-                    {
-                        Ok(_) => { /* continue */ }
-                        Err(e) => return Err(e),
+                        {
+                            Ok(_) => { /* continue */ }
+                            Err(e) => return Err(e),
+                        }
                     }
                     let request_done = self.send_body_to_pipe(
                         session,
