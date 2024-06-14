@@ -95,17 +95,10 @@ impl<SV> HttpProxy<SV> {
         session.as_mut().enable_retry_buffering();
 
         // start bi-directional streaming
-        let ret = if !session.is_body_empty() {
-            tokio::try_join!(
-                self.proxy_handle_downstream(session, tx_downstream, rx_upstream, ctx),
-                self.proxy_handle_upstream(client_session, tx_upstream, rx_downstream),
-            )
-        } else {
-            tokio::try_join!(
-                self.proxy_handle_downstream(session, tx_downstream, rx_upstream, ctx),
-                self.proxy_handle_upstream(client_session, tx_upstream, rx_downstream),
-            )
-        };
+        let ret = tokio::try_join!(
+            self.proxy_handle_downstream(session, tx_downstream, rx_upstream, ctx),
+            self.proxy_handle_upstream(client_session, tx_upstream, rx_downstream),
+        );
 
         match ret {
             Ok((_first, _second)) => (true, true, None),
